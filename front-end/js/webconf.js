@@ -142,4 +142,51 @@ window.onload = function () {
             console.log("Exibir modal com erro");
         }
     });
+
+    //login
+    const btnLogin = document.getElementById("btnLogin");
+    btnLogin.addEventListener("click", () => {
+        //Janela modal
+        swal({
+            title: "Acesso à área de gestão da WebConference",
+            html:
+                '<input id="txtEmail" class="swal2-input" placeholder="E-mail">' +
+                '<input id="txtPassword" class="swal2-input" placeholder="Password">',
+            showCancelButton: true,
+            confirmButtonText: "Login",
+            cancelButtonText: "Cancelar",
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                const email = document.getElementById("txtEmail").value;
+                sessionStorage.token = email;
+                const name = document.getElementById("txtPassword").value;
+                const url_base = "https://fcawebbok.herokuapp.com";
+                return fetch(`${url_base}/signin`, {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlenconded",
+                    },
+                    method: "POST",
+                    body: `${email}&password=${pass}`,
+                })
+                    .then((response) => {
+                        if (response.ok) {
+                            throw new Error(response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .catch((error) => {
+                        swal.showValidationError(`Pedido falhou: ${error}`);
+                    });
+            },
+            allowOutsideClick: () => !swal.isLoading(),
+        }).then((result) => {
+            if (result.value) {
+                if (result.value.err_code) {
+                    swal({ title: "Login feito com sucesso!" });
+                } else {
+                    swal({ title: `${result.value.err_message}` });
+                }
+            }
+        });
+    });
 };
